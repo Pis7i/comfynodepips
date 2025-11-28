@@ -28,7 +28,6 @@ def load_reference():
             pkg, ver = line.split("==")
             pkg = pkg.lower()
 
-            # skip ignored packages in reference
             if pkg in IGNORE_EXACT or any(pkg.startswith(p) for p in IGNORE_PREFIXES):
                 continue
 
@@ -57,15 +56,13 @@ def main():
             print(f"📦 Installing missing: {pkg}=={ver}")
             subprocess.run(["pip", "install", f"{pkg}=={ver}"])
         elif cur[pkg] != ver:
-            print(f"🔄 Version mismatch: {pkg} {cur[pkg]} → {ver}")
+            print(f"🔄 Version mismatch: {pkg} {cur[pkg]} → {ver} (forcing exact version)")
             subprocess.run(["pip", "install", "--force-reinstall", f"{pkg}=={ver}"])
 
-    # ========== REMOVE PACKAGES NOT IN REFERENCE ==========
+    # ========== EXTRA PACKAGES (NOT IN REFERENCE) ==========
     for pkg in cur:
         if pkg not in ref:
-            print(f"❌ Extra package found (not in reference): {pkg}")
-            # To actually remove it, uncomment:
-            # subprocess.run(["pip", "uninstall", "-y", pkg])
+            print(f"ℹ️  Extra package found (keeping): {pkg} {cur[pkg]}")
 
     print("✅ Sync complete")
 
